@@ -3,40 +3,57 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Авторизация</title>
+    <title>Авторизация Снайпера</title>
+    <!-- Официальный скрипт Telegram Web Apps -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        body { background: var(--tg-theme-bg-color, #fff); color: var(--tg-theme-text-color, #000); text-align: center; font-family: sans-serif; padding: 20px; }
-        textarea { width: 100%; height: 120px; margin-top: 15px; padding: 10px; border-radius: 8px; border: 1px solid #ccc; background: var(--tg-theme-secondary-bg-color, #eee); color: var(--tg-theme-text-color, #000); resize: none; word-break: break-all; }
-        button { background: var(--tg-theme-button-color, #2481cc); color: var(--tg-theme-button-text-color, #fff); border: none; padding: 14px 20px; border-radius: 8px; font-size: 16px; margin-top: 15px; cursor: pointer; width: 100%; font-weight: bold; }
+        body {
+            font-family: sans-serif;
+            background-color: var(--tg-theme-bg-color, #17212b);
+            color: var(--tg-theme-text-color, #ffffff);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            text-align: center;
+        }
+        button {
+            background-color: var(--tg-theme-button-color, #5288c1);
+            color: var(--tg-theme-button-text-color, #ffffff);
+            border: none;
+            padding: 16px 32px;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
     </style>
 </head>
 <body>
-    <h3>Ключ доступа</h3>
-    <p>Нажмите кнопку ниже, чтобы скопировать ваш уникальный ключ, а затем отправьте его боту.</p>
+    <h2>Авторизация</h2>
+    <p>Нажмите кнопку ниже, чтобы привязать аккаунт Telegram к боту.</p>
     
-    <textarea id="tokenData" readonly>Загрузка...</textarea>
-    <button id="copyBtn" onclick="copyToken()">📋 Скопировать и закрыть</button>
+    <button id="authBtn">Подтвердить авторизацию</button>
 
     <script>
-        const tg = window.Telegram.WebApp;
-        tg.ready();
-        tg.expand();
+        // Инициализируем Web App
+        let tg = window.Telegram.WebApp;
+        tg.expand(); // Разворачиваем на весь экран
 
-        const tokenBox = document.getElementById('tokenData');
-
-        // В Inline-режиме initData всегда заполнена
-        if (tg.initData) {
-            tokenBox.value = tg.initData;
-        } else {
-            tokenBox.value = "Ошибка: Откройте приложение через Inline-кнопку бота.";
-        }
-
-        function copyToken() {
-            tokenBox.select();
-            document.execCommand('copy');
-            tg.close(); // Автоматически закрываем Web App после копирования
-        }
+        document.getElementById('authBtn').addEventListener('click', () => {
+            // tg.initData содержит ту самую длинную строку с query_id и hash
+            let initData = tg.initData;
+            
+            if (initData) {
+                // Закрываем окно и отправляем строку прямо в C# бота (как MessageType.WebAppData)
+                tg.sendData(initData);
+            } else {
+                alert("Ошибка! Откройте приложение с телефона внутри Telegram.");
+            }
+        });
     </script>
 </body>
 </html>
